@@ -1,0 +1,19 @@
+{
+  "name": "js-hw11-jest-tests",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "jsdom": "^26.0.0",
+    "vitest": "^3.1.1"
+  },
+  "dependencies": {
+    "typescript": "^5.8.3"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  }
+}
