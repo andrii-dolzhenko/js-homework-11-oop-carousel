@@ -1,30 +1,120 @@
-<!DOCTYPE html>
+<!Doctype html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
-  <title>Title</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CANBY Glass Design Studio product carousel built with JavaScript classes">
+
+  <title>CANBY — Glass Collection</title>
+
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+
+  <style>
+    @media (min-width: 1400px) {
+      .carousel__content {
+        width: min(34vw, 570px);
+      }
+
+      .carousel__title {
+        max-width: 570px;
+        font-size: clamp(68px, 4.7vw, 90px);
+        line-height: 0.88;
+      }
+    }
+
+    @media (min-width: 1800px) {
+      .carousel__content {
+        width: min(32vw, 600px);
+      }
+
+      .carousel__title {
+        max-width: 600px;
+        font-size: 88px;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <main id="carousel" class="carousel" data-tint="amber" data-interval="6000">
+    <div class="carousel__background" aria-hidden="true"></div>
+    <div class="carousel__tint" aria-hidden="true"></div>
+    <div class="carousel__embers" aria-hidden="true"></div>
 
-  <!-- Розмітка не використовується у тестуванні, але ви можете писати тут потрібний вам HTML та перевіряти його у браузері разом із логікою слайдера у main.js -->
+    <header class="carousel__brand">
+      <img class="carousel__logo" src="assets/images/canby-logo.png" alt="CANBY Glass Design Studio">
+    </header>
 
-  <div id="carousel" class="carousel">
-    <div id="slides-container" class="slides">
-      <div class="slide active" style="background-color: red;"></div>
-      <div class="slide" style="background-color: blue;"></div>
-      <div class="slide" style="background-color: green;"></div>
-      <div class="slide" style="background-color: yellow;"></div>
-      <div class="slide" style="background-color: purple;"></div>
+    <section class="carousel__content" aria-live="polite">
+      <p class="carousel__counter">
+        <span id="current-number">01</span>
+        <span aria-hidden="true">/</span>
+        <span>05</span>
+      </p>
+
+      <div class="carousel__copy-mask">
+        <p id="product-label" class="carousel__label">
+          Signature collection
+        </p>
+
+        <h1 id="product-title" class="carousel__title">
+          Amber Hookah
+        </h1>
+
+        <p id="product-description" class="carousel__description">
+          Hand-blown crystal glass with a warm amber finish and handcrafted
+          metal details.
+        </p>
+
+        <p id="product-price" class="carousel__price">€420</p>
+      </div>
+    </section>
+
+    <div id="slides-container" class="carousel__stage">
+      <article class="slide active" data-number="01" data-label="Signature collection" data-title="Amber Hookah"
+        data-description="Hand-blown crystal glass with a warm amber finish and handcrafted metal details."
+        data-price="€420" data-tint="amber" aria-label="Amber Hookah">
+        <img class="slide__product slide__product--hookah" src="assets/images/canby-product-01-amber-hookah.webp"
+          alt="Amber glass hookah">
+      </article>
+
+      <article class="slide" data-number="02" data-label="Sculptural glass" data-title="Ember Bowl"
+        data-description="A sculptural crystal bowl shaped by fire, precise cuts and hand-polished reflections."
+        data-price="€180" data-tint="copper" aria-label="Ember Bowl">
+        <img class="slide__product slide__product--bowl" src="assets/images/canby-product-02-ember-bowl.webp"
+          alt="Faceted amber crystal bowl">
+      </article>
+
+      <article class="slide" data-number="03" data-label="Interior collection" data-title="Luminous Vase"
+        data-description="A hand-shaped glass vase with flowing lines, warm reflections and a sculptural silhouette."
+        data-price="€260" data-tint="honey" aria-label="Luminous Vase">
+        <img class="slide__product slide__product--vase" src="assets/images/canby-product-03-luminous-vase.webp"
+          alt="Sculptural luminous glass vase">
+      </article>
+
+      <article class="slide" data-number="04" data-label="Ambient lighting" data-title="Amber Glow Lamp"
+        data-description="A hand-blown glass lamp designed to create a soft amber glow and a warm atmosphere."
+        data-price="€340" data-tint="gold" aria-label="Amber Glow Lamp">
+        <img class="slide__product slide__product--lamp" src="assets/images/canby-product-04-amber-glow-lamp.webp"
+          alt="Amber glass table lamp">
+      </article>
+
+      <article class="slide" data-number="05" data-label="Curated gifts" data-title="Artisan Gift Set"
+        data-description="A crystal decanter and two glasses presented in premium CANBY gift packaging."
+        data-price="€290" data-tint="garnet" aria-label="Artisan Gift Set">
+        <img class="slide__product slide__product--gift" src="assets/images/canby-product-05-artisan-gift-set.webp"
+          alt="CANBY crystal decanter gift set">
+      </article>
     </div>
-  </div>
 
-  <!-- Розташування та імя файлу скрипта змінювати неможна -->
+    <!-- Controls and indicators are generated dynamically by Carousel. -->
+    <p class="carousel__hint">Drag, swipe or use arrow keys</p>
+  </main>
+
+  <!-- Розташування та ім'я файлу скрипта змінювати не можна -->
   <script src="main.js" type="module"></script>
-
 </body>
 
 </html>
