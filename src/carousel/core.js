@@ -9,6 +9,10 @@ class Carousel {
   #currentSlide
   #timerId
   #contentAnimationFrameId
+  #progressAnimation
+  #progressCurrentScale
+  #progressFromScale
+  #progressToScale
 
   #pauseBtn
   #nextBtn
@@ -17,6 +21,7 @@ class Carousel {
   #playIcon
   #indicatorsContainer
   #indicatorItems
+  #progressFill
 
   #content
   #currentNumber
@@ -41,8 +46,14 @@ class Carousel {
       ...options
     }
 
-    this.container = document.querySelector(settings.containerId)
-    this.slides = this.container.querySelectorAll(settings.slideId)
+    this.container = document.querySelector(
+      settings.containerId
+    )
+
+    this.slides = this.container.querySelectorAll(
+      settings.slideId
+    )
+
     this.TIMER_INTERVAL = settings.interval
     this.isPlaying = settings.isPlaying
     this.pauseOnHover = settings.pauseOnHover
@@ -51,6 +62,10 @@ class Carousel {
   #initProps() {
     this.#currentSlide = 0
     this.#contentAnimationFrameId = null
+    this.#progressAnimation = null
+    this.#progressCurrentScale = 1
+    this.#progressFromScale = 1
+    this.#progressToScale = 1
 
     this.#SLIDES_COUNT = this.slides.length
     this.#CODE_SPACE = KEYS.SPACE
@@ -59,27 +74,43 @@ class Carousel {
 
     this.#FA_PAUSE = '<i class="fas fa-pause"></i>'
     this.#FA_PLAY = '<i class="fas fa-play"></i>'
-    this.#FA_PREV = '<i class="fas fa-chevron-left"></i>'
-    this.#FA_NEXT = '<i class="fas fa-chevron-right"></i>'
+    this.#FA_PREV =
+      '<i class="fas fa-chevron-left"></i>'
+    this.#FA_NEXT =
+      '<i class="fas fa-chevron-right"></i>'
   }
 
   #initProductContent() {
-    this.#content = this.container.querySelector('.carousel__content')
+    this.#content = this.container.querySelector(
+      '.carousel__content'
+    )
+
     this.#currentNumber =
       this.container.querySelector('#current-number')
-    this.#timelineNumber =
-      this.container.querySelector('#timeline-number')
+
     this.#productLabel =
       this.container.querySelector('#product-label')
+
     this.#productTitle =
       this.container.querySelector('#product-title')
+
     this.#productDescription =
-      this.container.querySelector('#product-description')
+      this.container.querySelector(
+        '#product-description'
+      )
+
     this.#productPrice =
       this.container.querySelector('#product-price')
   }
 
   #initControls() {
+    const firstNumber =
+      this.slides[0]?.dataset.number || '01'
+
+    const totalNumber = String(
+      this.#SLIDES_COUNT
+    ).padStart(2, '0')
+
     const pauseIcon = `
       <span id="${ELEMENT_IDS.PAUSE_ICON}">
         ${this.#FA_PAUSE}
@@ -93,37 +124,78 @@ class Carousel {
     `
 
     const pause = `
-      <span
+      <button
         id="${ELEMENT_IDS.PAUSE_BTN}"
-        class="${CSS_CLASSES.PAUSE_BTN}"
+        class="${CSS_CLASSES.PAUSE_BTN} carousel__playback"
+        type="button"
+        aria-label="Pause carousel"
       >
         ${pauseIcon}
         ${playIcon}
-      </span>
+      </button>
+    `
+
+    const progress = `
+      <div
+        class="carousel__progress"
+        aria-hidden="true"
+      >
+        <span
+          id="progress-fill"
+          class="carousel__progress-fill"
+        ></span>
+      </div>
+    `
+
+    const counter = `
+      <p class="carousel__timeline-counter">
+        <span id="timeline-number">
+          ${firstNumber}
+        </span>
+
+        <span aria-hidden="true">/</span>
+        <span>${totalNumber}</span>
+      </p>
+    `
+
+    const timeline = `
+      <div class="carousel__timeline">
+        ${pause}
+        ${progress}
+        ${counter}
+      </div>
     `
 
     const prev = `
-      <span
+      <button
         id="${ELEMENT_IDS.PREV_BTN}"
-        class="${CSS_CLASSES.PREV_BTN}"
+        class="${CSS_CLASSES.PREV_BTN} carousel__arrow carousel__arrow--prev"
+        type="button"
+        aria-label="Previous product"
       >
         ${this.#FA_PREV}
-      </span>
+      </button>
     `
 
     const next = `
-      <span
+      <button
         id="${ELEMENT_IDS.NEXT_BTN}"
-        class="${CSS_CLASSES.NEXT_BTN}"
+        class="${CSS_CLASSES.NEXT_BTN} carousel__arrow carousel__arrow--next"
+        type="button"
+        aria-label="Next product"
       >
         ${this.#FA_NEXT}
-      </span>
+      </button>
     `
 
     const controls = document.createElement('div')
 
-    controls.setAttribute('class', CSS_CLASSES.CONTROLS)
-    controls.innerHTML = pause + prev + next
+    controls.setAttribute(
+      'class',
+      `${CSS_CLASSES.CONTROLS} carousel__controls`
+    )
+
+    controls.innerHTML = prev + next + timeline
 
     this.container.append(controls)
 
@@ -147,6 +219,12 @@ class Carousel {
       `#${ELEMENT_IDS.PLAY_ICON}`
     )
 
+    this.#timelineNumber =
+      this.container.querySelector('#timeline-number')
+
+    this.#progressFill =
+      this.container.querySelector('#progress-fill')
+
     this.isPlaying
       ? this.#pauseVisible()
       : this.#playVisible()
@@ -162,7 +240,7 @@ class Carousel {
 
     indicators.setAttribute(
       'class',
-      CSS_CLASSES.INDICATORS
+      `${CSS_CLASSES.INDICATORS} carousel__indicators`
     )
 
     for (let i = 0; i < this.#SLIDES_COUNT; i++) {
@@ -181,13 +259,15 @@ class Carousel {
 
     this.container.append(indicators)
 
-    this.#indicatorsContainer = this.container.querySelector(
-      `#${ELEMENT_IDS.INDICATORS_CONTAINER}`
-    )
+    this.#indicatorsContainer =
+      this.container.querySelector(
+        `#${ELEMENT_IDS.INDICATORS_CONTAINER}`
+      )
 
-    this.#indicatorItems = this.container.querySelectorAll(
-      `.${CSS_CLASSES.INDICATOR}`
-    )
+    this.#indicatorItems =
+      this.container.querySelectorAll(
+        `.${CSS_CLASSES.INDICATOR}`
+      )
   }
 
   #initEventListeners() {
@@ -230,27 +310,28 @@ class Carousel {
   }
 
   #gotoNth(n) {
-    this.slides[this.#currentSlide].classList.toggle(
-      CSS_CLASSES.ACTIVE
-    )
+    this.slides[
+      this.#currentSlide
+    ].classList.toggle(CSS_CLASSES.ACTIVE)
 
-    this.#indicatorItems[this.#currentSlide].classList.toggle(
-      CSS_CLASSES.ACTIVE
-    )
+    this.#indicatorItems[
+      this.#currentSlide
+    ].classList.toggle(CSS_CLASSES.ACTIVE)
 
     this.#currentSlide =
       (n + this.#SLIDES_COUNT) % this.#SLIDES_COUNT
 
-    this.slides[this.#currentSlide].classList.toggle(
-      CSS_CLASSES.ACTIVE
-    )
+    this.slides[
+      this.#currentSlide
+    ].classList.toggle(CSS_CLASSES.ACTIVE)
 
-    this.#indicatorItems[this.#currentSlide].classList.toggle(
-      CSS_CLASSES.ACTIVE
-    )
+    this.#indicatorItems[
+      this.#currentSlide
+    ].classList.toggle(CSS_CLASSES.ACTIVE)
 
     this.#updateSlidePositions()
     this.#updateProductContent()
+    this.#syncProgressToSlide()
   }
 
   #gotoNext() {
@@ -266,7 +347,9 @@ class Carousel {
 
     if (
       target &&
-      target.classList.contains(CSS_CLASSES.INDICATOR)
+      target.classList.contains(
+        CSS_CLASSES.INDICATOR
+      )
     ) {
       this.pause()
       this.#gotoNth(+target.dataset.slideTo)
@@ -335,7 +418,8 @@ class Carousel {
       ) % this.#SLIDES_COUNT
 
     const entryIndex =
-      (this.#currentSlide + 1) % this.#SLIDES_COUNT
+      (this.#currentSlide + 1) %
+      this.#SLIDES_COUNT
 
     this.slides[trailOneIndex].classList.add(
       'position-prev',
@@ -346,7 +430,9 @@ class Carousel {
       this.#SLIDES_COUNT > 2 &&
       trailTwoIndex !== trailOneIndex
     ) {
-      this.slides[trailTwoIndex].classList.add('trail-2')
+      this.slides[trailTwoIndex].classList.add(
+        'trail-2'
+      )
     }
 
     if (
@@ -368,7 +454,8 @@ class Carousel {
 
     if (
       this.#contentAnimationFrameId !== null &&
-      typeof window.cancelAnimationFrame === 'function'
+      typeof window.cancelAnimationFrame ===
+        'function'
     ) {
       window.cancelAnimationFrame(
         this.#contentAnimationFrameId
@@ -378,7 +465,8 @@ class Carousel {
     this.#content.classList.remove('is-changing')
 
     if (
-      typeof window.requestAnimationFrame !== 'function'
+      typeof window.requestAnimationFrame !==
+      'function'
     ) {
       this.#content.classList.add('is-changing')
       return
@@ -386,12 +474,15 @@ class Carousel {
 
     this.#contentAnimationFrameId =
       window.requestAnimationFrame(() => {
-        this.#content.classList.add('is-changing')
+        this.#content.classList.add(
+          'is-changing'
+        )
       })
   }
 
   #updateProductContent(animate = true) {
-    const activeSlide = this.slides[this.#currentSlide]
+    const activeSlide =
+      this.slides[this.#currentSlide]
 
     if (!activeSlide || !activeSlide.dataset.title) {
       return
@@ -437,6 +528,151 @@ class Carousel {
     }
   }
 
+  #getProgressScaleForSlide() {
+    if (this.#SLIDES_COUNT <= 1) {
+      return 1
+    }
+
+    return (
+      1 -
+      this.#currentSlide / this.#SLIDES_COUNT
+    )
+  }
+
+  #getProgressTargetScale() {
+    if (this.#SLIDES_COUNT <= 1) {
+      return 1
+    }
+
+    return (
+      1 -
+      (this.#currentSlide + 1) /
+        this.#SLIDES_COUNT
+    )
+  }
+
+  #applyProgressScale(scale) {
+    this.#progressCurrentScale = Math.max(
+      0,
+      Math.min(scale, 1)
+    )
+
+    if (this.#progressFill) {
+      this.#progressFill.style.transform =
+        `scaleX(${this.#progressCurrentScale})`
+    }
+  }
+
+#cancelProgressAnimation() {
+  const animation = this.#progressAnimation
+
+  if (!animation) {
+    return
+  }
+
+  animation.onfinish = null
+  animation.cancel()
+  this.#progressAnimation = null
+}
+
+  #captureProgressPosition() {
+    if (!this.#progressAnimation) {
+      return
+    }
+
+    const currentTime = Math.min(
+      Number(
+        this.#progressAnimation.currentTime
+      ) || 0,
+      this.TIMER_INTERVAL
+    )
+
+    const progress = this.TIMER_INTERVAL
+      ? currentTime / this.TIMER_INTERVAL
+      : 1
+
+    const currentScale =
+      this.#progressFromScale +
+      (
+        this.#progressToScale -
+        this.#progressFromScale
+      ) *
+        progress
+
+    this.#cancelProgressAnimation()
+    this.#applyProgressScale(currentScale)
+  }
+
+  #startProgressAnimation() {
+  if (
+    !this.isPlaying ||
+    !this.#progressFill ||
+    this.#SLIDES_COUNT <= 1
+  ) {
+    return
+  }
+
+  this.#cancelProgressAnimation()
+
+  this.#progressFromScale =
+    this.#progressCurrentScale
+
+  this.#progressToScale =
+    this.#getProgressTargetScale()
+
+  if (
+    typeof this.#progressFill.animate !==
+    'function'
+  ) {
+    return
+  }
+
+  const targetScale = this.#progressToScale
+
+  const animation = this.#progressFill.animate(
+    [
+      {
+        transform:
+          `scaleX(${this.#progressFromScale})`
+      },
+      {
+        transform:
+          `scaleX(${targetScale})`
+      }
+    ],
+    {
+      duration: this.TIMER_INTERVAL,
+      easing: 'linear'
+    }
+  )
+
+  this.#progressAnimation = animation
+
+  animation.onfinish = () => {
+    if (this.#progressAnimation !== animation) {
+      return
+    }
+
+    animation.onfinish = null
+    animation.cancel()
+
+    this.#progressAnimation = null
+    this.#applyProgressScale(targetScale)
+  }
+}
+
+  #syncProgressToSlide() {
+    this.#cancelProgressAnimation()
+
+    this.#applyProgressScale(
+      this.#getProgressScaleForSlide()
+    )
+
+    if (this.isPlaying) {
+      this.#startProgressAnimation()
+    }
+  }
+
   #tick() {
     if (!this.isPlaying || this.#timerId) {
       return
@@ -454,6 +690,13 @@ class Carousel {
 
     this.#playIcon.style.opacity =
       isVisible ? 0 : 1
+
+    this.#pauseBtn.setAttribute(
+      'aria-label',
+      isVisible
+        ? 'Pause carousel'
+        : 'Play carousel'
+    )
   }
 
   #playVisible() {
@@ -471,7 +714,9 @@ class Carousel {
       return
     }
 
+    this.#captureProgressPosition()
     this.#playVisible()
+    this.container.classList.add('is-paused')
     this.isPlaying = false
 
     clearInterval(this.#timerId)
@@ -484,7 +729,10 @@ class Carousel {
     }
 
     this.#pauseVisible()
+    this.container.classList.remove('is-paused')
     this.isPlaying = true
+
+    this.#startProgressAnimation()
     this.#tick()
   }
 
@@ -506,6 +754,7 @@ class Carousel {
     this.#initEventListeners()
     this.#updateSlidePositions()
     this.#updateProductContent(false)
+    this.#syncProgressToSlide()
     this.#tick()
   }
 }

@@ -1441,3 +1441,29 @@ button {
     gap: 8px;
   }
 }
+/* Final timeline layout */
+.controls.carousel__controls .carousel__timeline .control-pause {
+  position: relative;
+  bottom: auto;
+  left: auto;
+}
+
+.controls.carousel__controls .carousel__timeline {
+  pointer-events: none;
+}
+
+.controls.carousel__controls .carousel__timeline .control-pause {
+  pointer-events: auto;
+}
+/* Hide the hint on short mobile screens */
+@media (max-width: 768px) and (max-height: 800px) {
+  .carousel__hint {
+    display: none;
+  }
+}
+/* Hide the decorative hint on tablet and mobile layouts */
+@media (max-width: 1100px) {
+  .carousel__hint {
+    display: none;
+  }
+}
