@@ -2,6 +2,13 @@
 
 A responsive fullscreen product carousel for CANBY Glass Design Studio, built with pure JavaScript. Homework 11 focuses on object-oriented programming, inheritance, dynamic controls, configuration, and swipe support. The project provides class-based and prototype-based implementations in separate branches.
 
+## Project Links
+
+- [Live demo](https://andrii-dolzhenko.github.io/js-homework-11-oop-carousel/)
+- [GitHub repository](https://github.com/andrii-dolzhenko/js-homework-11-oop-carousel)
+- [Class-based implementation](https://github.com/andrii-dolzhenko/js-homework-11-oop-carousel/tree/classes)
+- [Prototype-based implementation](https://github.com/andrii-dolzhenko/js-homework-11-oop-carousel/tree/prototypes)
+
 ## Assignment Setup
 
 1. Install the project dependencies:
