@@ -1,94 +1,105 @@
 import Carousel from './core.js'
 import { DEFAULT_SETTINGS } from './helpers/config.js'
 
-/**
- * SwipeCarousel Class - extends Carousel with touch/swipe functionality
- * Adds touch and mouse swipe support to the basic carousel
- */
-class SwipeCarousel extends Carousel {
-  /* Private state variables - for swipe tracking */
-  #startPosX
-  #endPosX
-  #swipeThreshold
-  #isDragging = false
-
-  constructor(options) {
-    // Додаємо додаткові налаштування для swipe функціональності
-    const swipeSettings = {
-      ...DEFAULT_SETTINGS,
-      swipeThreshold: 100, // Мінімальна відстань свайпу для зміни слайда
-      ...options
-    }
-
-    super(swipeSettings)
-    this.slidesContainer = this.slides[0]?.parentElement
-    this.#swipeThreshold = swipeSettings.swipeThreshold
+function SwipeCarousel(options) {
+  const swipeSettings = {
+    ...DEFAULT_SETTINGS,
+    ...options
   }
 
-  /* ========== PRIVATE EVENT HANDLERS ========== */
+  Carousel.call(this, swipeSettings)
 
-  /**
-   * Prevent default drag behavior
-   * Stops images and other elements from being dragged
-   */
-  #preventDrag(e) {
-    e.preventDefault()
-    return false
+  this.slidesContainer =
+    this.slides[0]?.parentElement
+
+  this._startPosX = 0
+  this._endPosX = 0
+  this._swipeThreshold =
+    swipeSettings.swipeThreshold
+  this._isDragging = false
+}
+
+SwipeCarousel.prototype = Object.create(
+  Carousel.prototype
+)
+
+SwipeCarousel.prototype.constructor = SwipeCarousel
+
+SwipeCarousel.prototype._preventDrag = function (event) {
+  event.preventDefault()
+  return false
+}
+
+SwipeCarousel.prototype._swipeStart = function (event) {
+  this._isDragging = true
+
+  this._startPosX =
+    event instanceof MouseEvent
+      ? event.pageX
+      : event.changedTouches[0].pageX
+}
+
+SwipeCarousel.prototype._swipeEnd = function (event) {
+  if (!this._isDragging) {
+    return
   }
 
-  /**
-   * Handle swipe start event (touch/mouse)
-   * Records the initial X position of the pointer
-   */
-  #swipeStart(e) {
-    this.#isDragging = true
-    this.#startPosX = e instanceof MouseEvent ? e.pageX : e.changedTouches[0].pageX
+  this._endPosX =
+    event instanceof MouseEvent
+      ? event.pageX
+      : event.changedTouches[0].pageX
+
+  this._isDragging = false
+
+  const swipeDistance =
+    this._endPosX - this._startPosX
+
+  if (swipeDistance > this._swipeThreshold) {
+    this.prev()
   }
 
-  /**
-   * Handle swipe end event (touch/mouse)
-   * Calculates swipe direction based on distance and triggers navigation
-   */
-  #swipeEnd(e) {
-    if (!this.#isDragging) return
-
-    this.#endPosX = e instanceof MouseEvent ? e.pageX : e.changedTouches[0].pageX
-    this.#isDragging = false
-
-    const swipeDistance = this.#endPosX - this.#startPosX
-    if (swipeDistance > this.#swipeThreshold) this.prev()
-    if (swipeDistance < -this.#swipeThreshold) this.next()
+  if (swipeDistance < -this._swipeThreshold) {
+    this.next()
   }
+}
 
-  /**
-   * Handle mouse leave event
-   * Cancels the swipe when mouse leaves the element
-   */
-  #mouseLeave() {
-    this.#isDragging = false
-  }
+SwipeCarousel.prototype._mouseLeave = function () {
+  this._isDragging = false
+}
 
-  /* ========== PUBLIC API ========== */
+SwipeCarousel.prototype.init = function () {
+  Carousel.prototype.init.call(this)
 
-  /**
-   * Initialize the carousel with swipe support
-   * Extends parent init() method with touch/mouse event listeners
-   */
-  init() {
-    super.init()
+  this.container.addEventListener(
+    'dragstart',
+    this._preventDrag
+  )
 
-    // Запобігання стандартному перетягуванню
-    this.container.addEventListener('dragstart', this.#preventDrag)
+  this.container.addEventListener(
+    'touchstart',
+    this._swipeStart.bind(this),
+    { passive: true }
+  )
 
-    // Додаємо обробники подій для свайпу
-    this.container.addEventListener('touchstart', this.#swipeStart.bind(this), { passive: true })
-    this.slidesContainer.addEventListener('mousedown', this.#swipeStart.bind(this))
-    this.container.addEventListener('touchend', this.#swipeEnd.bind(this))
-    this.slidesContainer.addEventListener('mouseup', this.#swipeEnd.bind(this))
+  this.slidesContainer.addEventListener(
+    'mousedown',
+    this._swipeStart.bind(this)
+  )
 
-    // Обробляємо вихід курсора за межі елемента
-    this.slidesContainer.addEventListener('mouseleave', this.#mouseLeave.bind(this))
-  }
+  this.container.addEventListener(
+    'touchend',
+    this._swipeEnd.bind(this)
+  )
+
+  this.slidesContainer.addEventListener(
+    'mouseup',
+    this._swipeEnd.bind(this)
+  )
+
+  this.slidesContainer.addEventListener(
+    'mouseleave',
+    this._mouseLeave.bind(this)
+  )
 }
 
 export default SwipeCarousel

@@ -13,13 +13,9 @@ export const DEFAULT_SETTINGS = {
   slideId: '.slide',
   interval: 5000,
   isPlaying: true,
-  pauseOnHover: false
-
-  // Можливі майбутні налаштування (закоментовані)
-  // swipeThreshold: 100,
-  // keyboardControl: true,
-  // infinite: true,
-  // autoInit: true
+  pauseOnHover: false,
+  showIndicators: true,
+  swipeThreshold: 100
 }
 
 /**
